@@ -13,7 +13,7 @@ class Question(models.Model):
         return self.question_text
 
     @admin.display(
-        boolean=True,
+        boolean=True,    
         ordering='pub_date',
         description='Published recently?',
     )

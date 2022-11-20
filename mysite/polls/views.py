@@ -11,12 +11,13 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         """
-        Return the last five published questions (not including those set to be
+        Return the first five published questions (not including those set to be
         published in the future).
         """
+
         return Question.objects.filter(
             pub_date__lte=timezone.now()
-        ).order_by('-pub_date')[:5]
+        ).order_by('pub_date')[:5]
 
 class DetailView(generic.DetailView):
     model = Question
@@ -40,12 +41,24 @@ def vote(request, question_id):
         # Redisplay the question voting form.
         return render(request, 'polls/detail.html', {
             'question': question,
-            'error_message': "You didn't select a choice.",
+            'error_message': "¡Escoge una alternativa!",
         })
     else:
         selected_choice.votes += 1
         selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+        
+        if question.id < Question.objects.last().id:
+             for i in range(question.id, Question.objects.last().id+1):
+                if i > question.id :
+                    if Question.objects.filter(pk=i).exists():
+                        return HttpResponseRedirect(reverse('polls:detail', args=(i,)))
+        else:
+            return HttpResponseRedirect(reverse('polls:index'))
+
+
+
+
+
+
+        
+
